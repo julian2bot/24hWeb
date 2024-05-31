@@ -47,3 +47,34 @@ tileset.onload = () => {
     canvas.height= canvas.clientHeight;
     
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    // URL de la requête
+    const url = 'https://24hweb.iutv.univ-paris13.fr/server/get-update';
+
+    // Options de la requête GET avec en-têtes
+    const options = {
+        method: 'GET',
+        headers: {
+            'TeamPassword': '9hq0p6WCs',
+            'TeamPlayerNb': 6
+        }
+    };
+
+    // Envoyer la requête GET avec des en-têtes
+    fetch(url, options)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur HTTP : ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Données reçues :', data);
+            // Afficher les données sur la page
+            document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+            console.error('Erreur de requête :', error);
+        });
+});
