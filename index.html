@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu Multijoueurs</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+    <script>
+        
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const tileset = new Image();
+        tileset.src = 'https://24hweb.iutv.univ-paris13.fr/tileset.png';
+
+        tileset.onload = () => {
+            drawTile(107); // Exemple: dessine une tuile d'herbe verte
+        };
+
+        function drawTile(tileId) {
+            const tilesetSize = 16;
+            const tilesPerRow = tileset.width / tilesetSize;
+            const sx = (tileId % tilesPerRow) * tilesetSize;
+            const sy = Math.floor(tileId / tilesPerRow) * tilesetSize;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(tileset, sx, sy, tilesetSize, tilesetSize, 0, 0, tilesetSize, tilesetSize);
+        }
+    
+
+        
+    </script>
+</head>
+<body>
+    <canvas id="gameCanvas" width="336" height="336"></canvas>
+    <script src="script.js"></script>
+</body>
+</html>
