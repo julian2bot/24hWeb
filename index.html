@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jeu Multijoueurs</title>
-  <style>
-    #gameCanvas {
-      border: 1px solid black;
-      image-rendering: pixelated;
-      /* Définir la largeur et la hauteur du canvas en fonction de la taille de la carte */
-      width: 336px; /* Largeur de la carte */
-      height: 336px; /* Hauteur de la carte */
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Tile Map</title>
+    <style>
+        #gameCanvas {
+            border: 1px solid black;
+        }
+    </style>
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
-  <script src="Essaie.js"></script>
+    <canvas id="gameCanvas" width="320" height="320"></canvas>
+    <button id="checkHello">Vérifier Hello</button>
+    <button id="checkUpdate">Vérifier Update</button>
+    <script src="Essaie.js"></script>
+    <pre id="response"></pre>
+
 </body>
 </html>
