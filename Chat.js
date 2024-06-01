@@ -22,17 +22,23 @@ ws.onopen = function(event) {
 };
 
 ws.onmessage = function(event) {
-    const message = JSON.parse(event.data);
-    if (message.action === "redraw") {
+    const message = event.data;
+    if (message === "redraw") {
         // Rafraîchissement de l'affichage
         console.log("Redraw received. Refreshing display...");
         // Implémentez la logique de rafraîchissement de l'affichage ici
     } else {
-        console.log("Message reçu du serveur WebSocket:", message);
-        // Afficher les messages du chat
-        displayChatMessage(message);
+        try {
+            const jsonData = JSON.parse(message);
+            console.log("Message reçu du serveur WebSocket:", jsonData);
+            // Afficher les messages du chat
+            displayChatMessage(jsonData);
+        } catch (error) {
+            console.error("Erreur lors de l'analyse du message JSON:", error);
+        }
     }
 };
+
 
 ws.onclose = function(event) {
     console.log("Connexion WebSocket fermée.");
@@ -68,70 +74,108 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("L'élément avec l'ID 'chatInput' n'a pas été trouvé.");
     }
 
-    async function movePlayer(direction) {
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'TeamPassword': '9hq0p6WCs',
-                    'TeamPlayerNb': 6,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ direction: direction })
-            });
 
-            if (response.ok) {
-                const data = await response.json();
-                responseElement.innerText = JSON.stringify(data, null, 2);
-            } else if (response.status === 429) {
-                handleRateLimit();
-            } else {
-                console.error('Erreur de requête:', response.status);
-                responseElement.innerText = `Erreur de requête: ${response.status}`;
+    function checkUpdate() {
+        const url = 'https://24hweb.iutv.univ-paris13.fr/server/get-update';
+        const options = {
+            method: 'GET',
+            headers: {
+                'TeamPassword': '9hq0p6WCs',
+                'TeamPlayerNb': 6
             }
-        } catch (error) {
-            console.error('Erreur de requête:', error);
-        }
+        };
+    
+        // Retourner une promesse
+        return fetch(url, options)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur HTTP : ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Données reçues pour /server/get-update:', data);
+                if (data.player && data.team && data.layers) {
+                    return data; // Retourner les données si elles sont correctes
+                } else {
+                    throw new Error('Réponse incorrecte pour /server/get-update');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur de requête pour /server/get-update:', error);
+                throw error; // Propager l'erreur
+            });
     }
-
-    function handleRateLimit() {
-        blocked = true;
-        console.warn('Limite de requêtes atteinte. Attente de 10 secondes...');
-        setTimeout(() => {
-            blocked = false;
-            console.log('Reprise des requêtes.');
-        }, 10000);
-    }
-
-
 
     
 
     // Fonction pour envoyer un message via la requête POST /say
-    async function sendMessage(message) {
-        try {
-            const response = await fetch('https://24hweb.iutv.univ-paris13.fr/server/say', {
-                method: 'POST',
-                headers: {
-                    'TeamPassword': '9hq0p6WCs',
-                    'TeamPlayerNb': 6,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: message,
-                    x: playerPosition.x,
-                    y: playerPosition.y
-                })
+    function sendMessage(message) {
+        const url = 'https://24hweb.iutv.univ-paris13.fr/server/say';
+    
+        // Appel à la fonction checkUpdate pour récupérer les données
+        checkUpdate()
+            .then(data => {
+                // Construire le corps de la requête avec les données récupérées
+                const requestBody = {
+                    id: generateUniqueId(),
+                    player: data.player.id,
+                    name: data.player.name,
+                    team: data.player.team,
+                    important: false, // Vous devez définir cela en fonction de votre logique
+                    date: data.date, // Utilisation de la date provenant des données reçues
+                    text: message,
+                    x: data.player.x,
+                    y: data.player.y
+                };
+    
+                // Options de la requête POST
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'TeamPassword': '9hq0p6WCs',
+                        'TeamPlayerNb': 6,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                };
+    
+                // Envoi de la requête POST
+                fetch(url, options)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erreur HTTP : ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Réponse du serveur pour /server/say:', data);
+                        // Traitez la réponse ici si nécessaire
+                        // Envoyer un message "redraw" à tous les joueurs à proximité
+                        sendRedrawMessage();
+                    })
+                    .catch(error => {
+                        console.error('Erreur de requête pour /server/say:', error);
+                    });
+            })
+            .catch(error => {
+                console.error('Erreur lors de la récupération des données avec checkUpdate:', error);
             });
+    }
+    
+    // Fonction pour envoyer un message "redraw" à tous les joueurs à proximité
+    function sendRedrawMessage() {
+        const redrawMessage = "redraw";
+        ws.send(redrawMessage);
+    }
+    
+    
 
-            if (response.ok) {
-                console.log('Message envoyé avec succès.');
-            } else {
-                console.error('Erreur lors de l\'envoi du message:', response.status);
-            }
-        } catch (error) {
-            console.error('Erreur lors de l\'envoi du message:', error);
-        }
+    function generateUniqueId() {
+        // Générer un identifiant unique en combinant la date actuelle avec un nombre aléatoire
+        const timestamp = Date.now().toString(36);
+        const random = Math.random().toString(36).substring(2, 8);
+        return timestamp + '-' + random;
     }
 
     // Fonction pour afficher les messages du chat
