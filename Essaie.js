@@ -39,7 +39,7 @@ function drawPlayers(players, tileWidth, tileHeight, tileset) {
         const playerX = player.viewX;
         const playerY = player.viewY;
 
-        drawPlayerTile(playerTileId, playerX, playerY, tileWidth, tileHeight, tileset);
+        drawPlayerTile(playerTileId, playerX, playerY-1.8, tileWidth, tileHeight, tileset);
 
         if (player.id !== 209) { // Assuming 209 is the current player's ID
             drawPlayerName(player.name, player.team, playerX, playerY, tileWidth, tileHeight);
@@ -153,6 +153,7 @@ document.getElementById('checkUpdate').addEventListener('click', checkUpdate);
 tileset.onload = () => {
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
+    canvas.focus();
     console.log('Tileset chargé.');
     loadAndDrawMap();
 };
@@ -236,8 +237,6 @@ document.addEventListener('keydown', (event) =>{
             if (response.ok) {
                 const data = await response.json();
                 responseElement.innerText = JSON.stringify(data, null, 2);
-                canvas.width = canvas.clientWidth;
-                canvas.height = canvas.clientHeight;
                 console.log('Tileset chargé.');
                 loadAndDrawMap();
             } else if (response.status === 429) {
