@@ -151,6 +151,8 @@ document.getElementById('checkUpdate').addEventListener('click', checkUpdate);
 
 
 tileset.onload = () => {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
     console.log('Tileset chargé.');
     loadAndDrawMap();
 };
