@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouvement du joueur</title>
+    <script src="Chat.js" defer></script>
+    <style>
+        .chat-messages {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .chat-message {
+            margin-bottom: 5px;
+        }
+        .important-message {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mouvement du joueur</h1>
+    <canvas id="game"></canvas>
+    <input type="text" id="chatInput" placeholder="Saisissez votre message...">
+    <button id="sendMessageButton">Envoyer</button> <!-- Bouton pour envoyer le message -->
+    <div class="chat-messages" id="chatMessages"></div>
+    <pre id="response"></pre>
+</body>
+</html>
