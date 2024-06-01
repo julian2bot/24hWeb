@@ -236,6 +236,10 @@ document.addEventListener('keydown', (event) =>{
             if (response.ok) {
                 const data = await response.json();
                 responseElement.innerText = JSON.stringify(data, null, 2);
+                canvas.width = canvas.clientWidth;
+                canvas.height = canvas.clientHeight;
+                console.log('Tileset chargé.');
+                loadAndDrawMap();
             } else if (response.status === 429) {
                 handleRateLimit();
             } else {
